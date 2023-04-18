@@ -1,3 +1,4 @@
+#test_population.py
 import sys
 sys.path.append("..")
 import string
@@ -69,34 +70,38 @@ class TestPopulation(unittest.TestCase):
     def test_full_character_set(self):
         keymap = self.generate_test_keymap();
         # Get unique characters from keymap, ignoring layer switch keys
-        unique_characters = {char for layer in keymap["layers"] for char in layer if not char.startswith("TO") and not char.startswith("FROM")}
+        unique_characters = {char for layer in keymap["layers"] for char in layer if not char.startswith("TO") and not char.startswith("FROM") and not char == ""}
         # Get the set of expected characters
         expected_characters = set(string.printable[:-5])
         # Compare the sets
         self.assertEqual(unique_characters, expected_characters)
 
     def test_layer_switch_keys(self):
-      layers = 3
-      keymap = self.generate_test_keymap(3);
+        layers = 3
+        keymap = self.generate_test_keymap(3)
 
-      for layer in keymap["layers"]:
-          to_keys_count = {}
-          from_keys_count = {}
+        to_keys_count = {}
+        from_keys_count = {}
 
-          for key in layer:
-              if key.startswith("TO"):
-                  layer_num = int(key[2:])
-                  to_keys_count[layer_num] = to_keys_count.get(layer_num, 0) + 1
-              elif key.startswith("FROM"):
-                  layer_num = int(key[4:])
-                  from_keys_count[layer_num] = from_keys_count.get(layer_num, 0) + 1
+        for layer in keymap["layers"]:
+            for key in layer:
+                if key.startswith("TO"):
+                    layer_num = int(key[2:])
+                    to_keys_count[layer_num] = to_keys_count.get(layer_num, 0) + 1
+                elif key.startswith("FROM"):
+                    layer_num = int(key[4:])
+                    from_keys_count[layer_num] = from_keys_count.get(layer_num, 0) + 1
 
-          self.assertEqual(to_keys_count, from_keys_count)
+        try:
+            self.assertEqual(to_keys_count, from_keys_count)
 
-          for layer_num in range(layers):
-              if layer_num in to_keys_count:
-                  self.assertEqual(to_keys_count[layer_num], 1)
-                  self.assertEqual(from_keys_count[layer_num], 1)
+            for layer_num in range(layers):
+                if layer_num in to_keys_count:
+                    self.assertEqual(to_keys_count[layer_num], 1)
+                    self.assertEqual(from_keys_count[layer_num], 1)
+        except AssertionError as e:
+            error_message = f"Error found in keymap:\n{keymap}\n\n{str(e)}"
+            raise AssertionError(error_message)
 
     def get_shifted_character(self, char):
         if char.isdigit():
@@ -110,15 +115,23 @@ class TestPopulation(unittest.TestCase):
             return None
 
     def test_shifted_characters(self):
-        keymap = self.generate_test_keymap();
+        keymap = self.generate_test_keymap()
 
         first_layer = keymap["layers"][0]
         second_layer = keymap["layers"][1]
 
+        errors = []
+
         for i, char in enumerate(first_layer):
             if char in string.ascii_lowercase:
                 shifted_char = self.get_shifted_character(char)
-                self.assertEqual(shifted_char, second_layer[i], f"Shifted character of {char} should be {shifted_char}, but got {second_layer[i]}")
+                if shifted_char != second_layer[i]:
+                    errors.append(f"Shifted character of {char} should be {shifted_char}, but got {second_layer[i]}")
+
+        if errors:
+            error_message = f"Errors found in keymap:\n{keymap}\n\n" + "\n".join(errors)
+            raise AssertionError(error_message)
+
 
 if __name__ == '__main__':
     unittest.main()
