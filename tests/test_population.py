@@ -7,8 +7,23 @@ from app.population import min_layer_switches_required, generate_random_keymap, 
 class TestPopulation(unittest.TestCase):
     
     @staticmethod
-    def generate_test_keymap(layers=3,available_keys=30):
-        finger_assignments = {
+    def generate_test_finger_assignments():
+        return {
+            "0": ["1", "2", "3"],
+            "1": ["4", "5", "6"],
+            "2": ["7", "8", "9"],
+            "3": ["10", "11", "12"],
+            "4": ["13", "14", "15"],
+            "5": ["16", "17", "18"],
+            "6": ["19", "20", "21"],
+            "7": ["22", "23", "24"],
+            "8": ["25", "26", "27"],
+            "9": ["28", "29", "30"]
+        }
+
+    @staticmethod
+    def generate_test_keymap(layers=4,available_keys=30):
+        finger_assignments =  {
             "0": ["1", "2", "3"],
             "1": ["4", "5", "6"],
             "2": ["7", "8", "9"],
@@ -32,14 +47,19 @@ class TestPopulation(unittest.TestCase):
             min_layer_switches_required("")
 
     def test_generate_random_keymap(self):
-        keymap = self.generate_test_keymap();
+        layers = 4
+        available_keys = 30 
+        keymap = self.generate_test_keymap(layers,available_keys);
         self.assertEqual(len(keymap["layers"]), layers)
         for layer in keymap["layers"]:
             self.assertEqual(len(layer), available_keys + layers)
 
     def test_generate_initial_keymaps(self):
         mu = 10
-        keymap = self.generate_test_keymap();
+        layers=4
+        available_keys=30
+        finger_assignments = self.generate_test_finger_assignments()
+        keymaps = generate_initial_keymaps(mu, layers, available_keys, finger_assignments)
         self.assertEqual(len(keymaps), mu)
         for keymap in keymaps:
             self.assertEqual(len(keymap["layers"]), layers)
