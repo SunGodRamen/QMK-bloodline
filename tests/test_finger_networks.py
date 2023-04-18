@@ -1,6 +1,6 @@
-import unittest
 import sys
 sys.path.append("..")
+import unittest
 from app.finger_networks import euclidean_distance, create_key_coordinates, create_key_distances, create_finger_networks
 
 class TestEuclideanDistance(unittest.TestCase):

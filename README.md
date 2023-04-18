@@ -21,7 +21,9 @@ Top 5 performing keymaps after a specified number of iterations.
 
 ### Implementation
  - Read the QMK key coordinates definition and finger assignment from an external source (e.g., a file or user input).
- - Generate μ random keymaps that contain all necessary character-producing keys, utilizing layers where required.
+ - Determine how many layers are necessary for the keymap to include all ascii characters from 32 (space) to 126 (~), considering the fact that a layer key uses one of the keys in the map and that a finger that is used to reach a layer cannot be used to produce a key on that layer
+ - Generate μ random keymaps that contain all necessary character-producing keys, utilizing layers where required and appropriate.
+ - Generate the weighted networks for the characters that each finger is assigned to using euclidean distance of the keys. Where a key is on a higher layer than base, the cost of the key is the travel distance of the layer key, plus the travel distance of the key.
  - Analyze the text files using the fitness function to consider the finger assignments, the total travel distance between keys while typing the translated documents, and shift, and layer-switching costs.
  - Implement a genetic algorithm to optimize the keymaps through a specified number of iterations (Γ), performing selection, crossover, and mutation to create new generations of keymaps, ensuring the full ASCII character set is accessible in child keymaps.
  - Across the iterations, store the top N performing keymaps based on their fitness scores and return them as output at the end.
@@ -90,5 +92,20 @@ finger_assignments = {
     "right_middle": ["8", "18", "28"],
     "right_ring": ["9", "19", "29"],
     "right_pinky": ["10", "20", "30"]
+}
+```
+```c
+{
+    "layers": [
+        [
+          "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "z", "x", "c", "v", "b", "n", "m", ",", "\\", "/", "LAYER3", " ", ".", "SHIFT"
+        ],
+        [
+          "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "A", "S", "D", "F", "G", "H", "J", "K", "L", ":", "Z", "X", "C", "V", "B", "N", "M", ">", "|", "?", "LAYER3", " ", "<", "SHIFT"
+        ],
+        [
+          "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "\"", "'", "`", "~", "-", "_", "=", "+", "[", "]", "LAYER3", "ENTER", " ", "SHIFT"
+        ]
+    ]
 }
 ```

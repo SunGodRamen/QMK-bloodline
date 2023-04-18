@@ -12,37 +12,54 @@ def min_layer_switches_required(layout):
     all_ascii_symbols = "".join(chr(i) for i in range(32, 128))
     num_ascii_characters = len(all_ascii_symbols)  # This includes both upper and lowercase characters
 
-    min_layer_switches = math.ceil((num_ascii_characters / 2) / num_keys)
+    min_layer_switches = math.ceil(num_ascii_characters / num_keys)
 
     if min_layer_switches > 15:
         raise ValueError("Layout requires too many layer switches (more than 15), which is invalid.")
     
     return min_layer_switches
 
+def generate_random_keymap(layers, available_keys, finger_assignments):
+    characters = list(string.printable[:-5])
 
-
-### WIP ---------
-
-def assign_characters(layout, num_momentary_layers):
-    all_ascii_symbols = "".join(chr(i) for i in range(32, 128))
-    shift_label = "Shift"
-    momentary_layer_labels = [f"ML{i}" for i in range(num_momentary_layers)]
-
-    characters_and_actions = list(all_ascii_symbols) + [shift_label] + momentary_layer_labels
-
+    # Assign characters to keys while maintaining the finger assignments
     assigned_keys = {}
-    for key in layout:
-        label = key["label"]
-        assigned_key = random.choice(characters_and_actions)
-        assigned_keys[label] = assigned_key
+    for finger, keys in finger_assignments.items():
+        num_keys = len(keys)
+        for key in keys:
+            if not characters:
+                break
+            char = random.choice(characters)
+            characters.remove(char)
+            assigned_keys[key] = {'char': char, 'layer': 0}
 
-    return assigned_keys
+    # Assign the remaining characters to layers 1 and above
+    for layer in range(1, layers):
+        for key in assigned_keys:
+            if not characters:
+                break
+            char = random.choice(characters)
+            characters.remove(char)
+            assigned_keys[key]['char'] += char
 
-def print_keymap(keymap):
-    for key_label, assigned_key in keymap.items():
-        print(f"{key_label}: {assigned_key}")
+    # Generate the layers with assigned characters and layer-switching keys
+    layers_list = []
+    for layer in range(layers):
+        layer_chars = [""] * available_keys
+        for key in assigned_keys:
+            index = int(key) - 1
+            if layer < len(assigned_keys[key]['char']):
+                layer_chars[index] = assigned_keys[key]['char'][layer]
+            else:
+                layer_chars[index] = ""
+        layer_switch_keys = [f"TO{i}" if i != layer else f"FROM{i-1}" for i in range(layers)]
+        layers_list.append(layer_chars + layer_switch_keys)
 
-    layout = [...]  # Replace with your actual layout
-    num_momentary_layers = 2  # Replace with the desired number of Momentary Layer switches
-    keymap = assign_characters(layout, num_momentary_layers)
-    print_keymap(keymap)
+    return {"layers": layers_list}
+
+def generate_initial_keymaps(mu, layers, available_keys, finger_assignments):
+    keymaps = []
+    for _ in range(mu):
+        keymap = generate_random_keymap(layers, available_keys, finger_assignments)
+        keymaps.append(keymap)
+    return keymaps
