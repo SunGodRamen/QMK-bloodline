@@ -74,13 +74,13 @@ class TestPopulation(unittest.TestCase):
         }
         keymap = generate_random_keymap(layers, available_keys, finger_assignments)
 
-        unique_characters = set()
-        for layer in keymap["layers"]:
-            for char in layer:
-                if char and char not in unique_characters:
-                    unique_characters.add(char)
+        # Get unique characters from keymap, ignoring layer switch keys
+        unique_characters = {char for layer in keymap["layers"] for char in layer if not char.startswith("TO") and not char.startswith("FROM")}
 
+        # Get the set of expected characters
         expected_characters = set(string.printable[:-5])
+
+        # Compare the sets
         self.assertEqual(unique_characters, expected_characters)
 
 if __name__ == '__main__':
