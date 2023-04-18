@@ -1,3 +1,5 @@
+import json
+
 def euclidean_distance(coord1, coord2):
     x1, y1 = coord1
     x2, y2 = coord2
@@ -30,8 +32,9 @@ def create_finger_networks(finger_assignments, key_distances):
     return finger_networks
 
 def print_finger_networks(finger_networks):
+    output = {}
     for finger, network in finger_networks.items():
-        print(f"{finger}:")
+        output[finger] = {}
         for (key1, key2), distance in network.items():
-            print(f"  {key1} - {key2}: {distance:.2f}")
-        print()
+            output[finger][f"{key1} - {key2}"] = round(distance, 2)
+    print(json.dumps(output, indent=2))

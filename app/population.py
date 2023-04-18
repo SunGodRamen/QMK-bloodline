@@ -1,6 +1,7 @@
 import random
 import math
 import string
+import json
 
 def min_layer_switches_required(layout):
     num_keys = len(layout)
@@ -57,9 +58,14 @@ def generate_random_keymap(layers, available_keys, finger_assignments):
 
     return {"layers": layers_list}
 
+def print_keymaps(keymaps):
+    for i, keymap in enumerate(keymaps[:5]):
+      print(f"Keymap {i+1}:\n{json.dumps(keymap, indent=2)}\n")
+
 def generate_initial_keymaps(mu, layers, available_keys, finger_assignments):
     keymaps = []
     for _ in range(mu):
         keymap = generate_random_keymap(layers, available_keys, finger_assignments)
         keymaps.append(keymap)
+    print_keymaps(keymaps)
     return keymaps
